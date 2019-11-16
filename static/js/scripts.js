@@ -5,7 +5,10 @@ function turnUp() {
   Http.send();
 
   Http.onreadystatechange = (e) => {
-    console.log(Http.responseText)
+    let p = document.getElementById('desired');
+    t = parseFloat(Http.responseText);
+    t = t.toFixed(1);
+    p.innerText = "Desired: "+t+" °F";
   }
 }
 
@@ -16,7 +19,10 @@ function turnDown() {
   Http.send();
 
   Http.onreadystatechange = (e) => {
-    console.log(Http.responseText)
+    let p = document.getElementById('desired');
+    t = parseFloat(Http.responseText);
+    t = t.toFixed(1);
+    p.innerText = "Desired: "+t+" °F";
   }
 }
 
@@ -41,7 +47,6 @@ function updateTemp() {
     let p = document.getElementById('temperature');
     t = parseFloat(Http.responseText);
     t = t.toFixed(1);
-    console.log("temperature = " + t);
     p.innerText = "Current: "+t+" °F";
   }
 }

@@ -10,6 +10,9 @@ from flask_cors import CORS
 
 app = Flask(__name__)
 cors = CORS(app)
+
+settings = {'desired_temp' : 70,
+        'furnace_state' : True }
 '''
 Modes
     * activate/<mode name>
@@ -25,25 +28,35 @@ def index():
 @app.route('/furnace/on', methods=['POST'])
 def furnace_on():
     print("Turning the furnace on")
+    settings['furnace_state'] == True
     return "Furnace on\n"
 
 
 @app.route('/furnace/off', methods=['POST'])
 def furnace_off():
     print("Turning the furnace off")
+    settings['furnace_state'] == False
     return "Furnace off\n"
 
 
 @app.route('/temperature/up', methods=['POST'])
 def temp_up():
-    print("Turning temperature up")
-    return "turned up\n"
+    print(f"Turning temperature up: {settings['desired_temp']}")
+    settings['desired_temp'] += 1
+    return f"{settings['desired_temp']}"
 
 
 @app.route('/temperature/down', methods=['POST'])
 def temp_down():
-    print("Turning the temperature down")
-    return "turned down\n"
+    print(f"Turning the temperature down: {settings['desired_temp']}")
+    settings['desired_temp'] -= 1
+    return f"{settings['desired_temp']}"
+
+
+@app.route('/temperature/desired', methods=['GET'])
+def temp_desired():
+    t = readTemp()
+    return f"{settings['desired_temp']}"
 
 
 @app.route('/temperature/get', methods=['GET'])

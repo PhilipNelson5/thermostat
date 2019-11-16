@@ -40,6 +40,11 @@
         margin-left: 5%;
         font-size: 2.5em;
       }
+      #desired {
+        justify-content: center;
+        margin-left: 5%;
+        font-size: 2.5em;
+      }
     </style>
   </head>
 
@@ -50,7 +55,10 @@
         <button class="up" type="button" onClick="turnUp()" ><img src = "" /></button>
         <button class="down" type="button" onClick="turnDown()" ><img src = "static/img/arrow-circle-down-solid.svg" /></button>
       </div>
-      <p id="temperature"/>
+      <div class="vbox">
+        <p id="temperature"/>
+        <p id="desired"/>
+      <div>
     </div>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
   </body>
