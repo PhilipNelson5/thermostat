@@ -1,0 +1,39 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Thermostat</title>
+    <meta name="description" content="Thermostat">
+    <meta name="Philip and Alex Nelson" content="Thermostat Interface">
+
+    <style>
+      .up {
+        background: url(static/img/arrow-circle-up-solid.svg) no-repeat top left;
+        background-size: contain;
+        cursor: pointer;
+        display: inline-block;
+        height: 52px;
+        width: 52px;
+      }
+      .down {
+        background: url(static/img/arrow-circle-down-solid.svg) no-repeat top left;
+        background-size: contain;
+        cursor: pointer;
+        display: inline-block;
+        height: 52px;
+        width: 52px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1> {{ title }} </h1>
+    <div class="updownbox>
+      <button class="up" type="button" onClick="turnUp()" ><img src = "" /></button>
+      <button class="down" type="button" onClick="turnDown()" ><img src = "static/img/arrow-circle-down-solid.svg" /></button>
+    </div>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+  </body>
+</html>
