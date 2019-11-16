@@ -30,3 +30,21 @@ function getTemp() {
     console.log(Http.responseText)
   }
 }
+
+function updateTemp() {
+  const Http = new XMLHttpRequest();
+  const url='http://thermostat-wifi.bluezone.usu.edu:4000/temperature/get';
+  Http.open("GET", url);
+  Http.send();
+
+  Http.onreadystatechange = (e) => {
+    let p = document.getElementById('temperature');
+    t = parseFloat(Http.responseText);
+    t = t.toFixed(1);
+    console.log("temperature = " + t);
+    p.innerText = "Current: "+t+" °F";
+  }
+}
+
+updateTemp();
+setInterval(updateTemp, 3*1000);

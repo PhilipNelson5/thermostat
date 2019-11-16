@@ -48,8 +48,9 @@ def temp_down():
 
 @app.route('/temperature/get', methods=['GET'])
 def temp_get():
-    print("Getting the temperature")
-    return f"{readTemp()}"
+    t = readTemp()
+    print(f"Temperature: {t}")
+    return f"{t}"
 
 
 if __name__ == '__main__':

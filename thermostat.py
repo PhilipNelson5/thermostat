@@ -10,11 +10,11 @@ heater = LED(14)
 def power(status):
     if status: 
         heater.on()
-        print("Heater on")
+        #print("Heater on")
         
     else:
         heater.off()
-        print("Heater off")
+        #print("Heater off")
 
 
 #if the time is between a and b turn the heater on
@@ -33,7 +33,7 @@ def main():
     sec = 3
     buffer = 1
     #Temperture for when we are not home
-    defaultTemp = 60
+    defaultTemp = 77
     #Temperture for when we are home
     desiredTemp = 85
 

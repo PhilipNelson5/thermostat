@@ -14,25 +14,43 @@
         background-size: contain;
         cursor: pointer;
         display: inline-block;
-        height: 52px;
-        width: 52px;
+        height: 75px;
+        width: 75px;
       }
       .down {
         background: url(static/img/arrow-circle-down-solid.svg) no-repeat top left;
         background-size: contain;
         cursor: pointer;
         display: inline-block;
-        height: 52px;
-        width: 52px;
+        height: 75px;
+        width: 75px;
+      }
+      .vbox {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap
+      }
+      .hbox {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap
+      }
+      #temperature {
+        justify-content: center;
+        margin-left: 5%;
+        font-size: 2.5em;
       }
     </style>
   </head>
 
   <body>
     <h1> {{ title }} </h1>
-    <div class="updownbox>
-      <button class="up" type="button" onClick="turnUp()" ><img src = "" /></button>
-      <button class="down" type="button" onClick="turnDown()" ><img src = "static/img/arrow-circle-down-solid.svg" /></button>
+    <div class="hbox">
+      <div class="vbox">
+        <button class="up" type="button" onClick="turnUp()" ><img src = "" /></button>
+        <button class="down" type="button" onClick="turnDown()" ><img src = "static/img/arrow-circle-down-solid.svg" /></button>
+      </div>
+      <p id="temperature"/>
     </div>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
   </body>
