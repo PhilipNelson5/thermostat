@@ -35,14 +35,19 @@
         flex-direction: row;
         flex-wrap: wrap
       }
+      p {
+        width: 100%;
+      }
       #temperature {
         justify-content: center;
         margin-left: 5%;
+        margin-top: 0;
         font-size: 2.5em;
       }
       #desired {
         justify-content: center;
         margin-left: 5%;
+        margin-top: 0;
         font-size: 2.5em;
       }
     </style>
@@ -56,8 +61,8 @@
         <button class="down" type="button" onClick="turnDown()" ><img src = "static/img/arrow-circle-down-solid.svg" /></button>
       </div>
       <div class="vbox">
-        <p id="temperature"/>
-        <p id="desired"/>
+        <p id="temperature">Current:</p>
+        <p id="desired">Current:</p>
       <div>
     </div>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>

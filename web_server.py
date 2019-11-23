@@ -3,16 +3,24 @@
 import os
 import time
 
-from temperature import readTemp
+from gpiozero import LED
+import sqlite3
+
 from flask import render_template
 from flask import Flask
 from flask_cors import CORS
 
+from temperature import readTemp
+import settings
+
 app = Flask(__name__)
 cors = CORS(app)
 
-settings = {'desired_temp' : 70,
-        'furnace_state' : True }
+furnace = LED(14)
+conn = sqlite3.connect(settings.database)
+c = conn.cursor()
+
+
 '''
 Modes
     * activate/<mode name>
@@ -27,41 +35,47 @@ def index():
 
 @app.route('/furnace/on', methods=['POST'])
 def furnace_on():
-    print("Turning the furnace on")
-    settings['furnace_state'] == True
-    return "Furnace on\n"
+    if settings.furnaceState != settings.State.ON:
+        print("Turning the furnace on")
+        settings.furnaceState = settings.State.ON
+        furnace.on()
+    return "Furnace on"
 
 
 @app.route('/furnace/off', methods=['POST'])
 def furnace_off():
-    print("Turning the furnace off")
-    settings['furnace_state'] == False
-    return "Furnace off\n"
+    if settings.furnaceState != settings.State.OFF:
+        print("Turning the furnace off")
+        settings.furnaceState = settings.State.OFF
+        furnace.off()
+    return "Furnace off"
 
 
 @app.route('/temperature/up', methods=['POST'])
 def temp_up():
-    print(f"Turning temperature up: {settings['desired_temp']}")
-    settings['desired_temp'] += 1
-    return f"{settings['desired_temp']}"
+    print(f"Turning temperature up: {settings.desiredTemp}")
+    settings.desiredTemp += 1
+    return f"{settings.desiredTemp}"
 
 
 @app.route('/temperature/down', methods=['POST'])
 def temp_down():
-    print(f"Turning the temperature down: {settings['desired_temp']}")
-    settings['desired_temp'] -= 1
-    return f"{settings['desired_temp']}"
+    print(f"Turning the temperature down: {settings.desiredTemp}")
+    settings.desiredTemp -= 1
+    return f"{settings.desiredTemp}"
 
 
 @app.route('/temperature/desired', methods=['GET'])
 def temp_desired():
-    t = readTemp()
-    return f"{settings['desired_temp']}"
+    return f"{settings.desiredTemp}"
 
 
 @app.route('/temperature/get', methods=['GET'])
 def temp_get():
-    t = readTemp()
+    t = database.getLatestTemp(c)
+    if t == None:
+        t = 'No temperatures taken'
+
     print(f"Temperature: {t}")
     return f"{t}"
 

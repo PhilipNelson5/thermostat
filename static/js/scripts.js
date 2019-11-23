@@ -52,4 +52,6 @@ function updateTemp() {
 }
 
 updateTemp();
+turnUp();
+turnDown();
 setInterval(updateTemp, 3*1000);
