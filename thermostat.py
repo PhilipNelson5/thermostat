@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+from typing import List, Set, Dict, Tuple, Optional
+from datetime import datetime
+
+import json
 import time
 import requests
 import sqlite3
@@ -9,79 +14,93 @@ from temperature import readTemp
 
 conn = sqlite3.connect(settings.database)
 
-def turnFurnaceOn():
+def turnFurnaceOn() -> None:
     try:
-        r = requests.post('http://localhost:4000/furnace/on')
+        r = requests.post(f'http://{settings.webserver}/furnace/on')
         print(r.text)
     except:
         pass
 
 
-def turnFurnaceOff():
+def turnFurnaceOff() -> None:
     try:
-        r = requests.post('http://localhost:4000/furnace/off')
+        r = requests.post(f'http://{settings.webserver}/furnace/off')
         print(r.text)
     except:
         pass
 
 
-def getDesiredTemp():
+def getDesiredTemp() -> Optional[str]:
     try:
-        r = requests.post('http://localhost:4000/temperature/desired')
-        return r.text
+        r = requests.get(f'http://{settings.webserver}/temperature/desired')
+        try:
+            res = json.loads(r.text)
+            return float(res['temperature'])
+        except:
+            print(f"error: {r.text} can not be parsed")
     except:
         return None
 
 
-#if the time is between a and b turn the heater on
-def checkTime(a, b):
-    currTime = time.localtime()
-    if a[0] <= currTime.tm_hour and currTime.tm_hour <= b[0]:
-        if a[0] == b[0]:
-            if currTime.tm_min >= a[1] and currTime.tm_min <= b[1]:
-                return True
-        if currTime.tm_min >= a[1] and currTime.tm_min <= 60 and currTime.tm_min <= b[1] and currTime.tm_min >= 0:
-            print("Heater on")
-            return True
+def setDesiredTemp(temp) -> None:
+    try:
+        r = requests.post(f'http://{settings.webserver}/temperature/setdesired/{temp}')
+    except:
+        pass
+
+
+def checkSchedules(c: sqlite3.Cursor) -> None:
+    schedules = database.getSchedules(c)
+    if schedules is None: return
+
+    now = datetime.now()
+    nows = now.hour*3600 + now.minute*60 + now.second
+    print("now ",nows)
+    # weekday(): monday = 0, sunday = 6
+    dow = now.today().weekday()
+    # TODO this and how days is stored are backwards...
+    mask = 1 << dow
+    for start, end, temp, days in schedules:
+    #{
+        print("checking: ", start, end, temp, bin(days), bin(mask))
+        if mask & days != 0 and nows > start and nows < end:
+            print("settings temp: ", temp)
+            setDesiredTemp(temp)
+            return
+    #}
+    setDesiredTemp(settings.minimumSafeTemperature)
 
 
 def main():
     c = conn.cursor()
     database.init(c)
     conn.commit()
-    buffer = 1
-    #Temperture for when we are not home
-    defaultTemp = 70
-    #Temperture for when we are home
 
     while True:
+    #{
+        checkSchedules(c)
         desiredTemp = getDesiredTemp()
 
-	#read the current temp of the room and turn on heater if needed
         currTemp = readTemp()
         database.saveTemperature(c, currTemp)
         conn.commit()
         print(currTemp)
 
+        # if there is a response from the web server
         if desiredTemp is not None:
+        #{
 
-            if currTemp < defaultTemp:
+            if currTemp < desiredTemp:
                 turnFurnaceOn()
 
-            else:
+            if currTemp + settings.buff > desiredTemp:
                 turnFurnaceOff()
 
-            #Turn on heater between a and b
-            #The first element in the area is the hour
-            #The second element in the area is the minute
-            a = [18,32]
-            b = [18,32]
-            if checkTime(a, b):
-                if currTemp < desiredTemp:
-                    turnFurnaceOn()
+        #}
 
-        #makes the program sleep for a specified number of sec
+        # sleep before the next loop
         time.sleep(settings.sleepIntervalSec)
+    #}
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,4 @@
+from typing import List, Set, Dict, Tuple, Optional
 from datetime import datetime
 import sqlite3
 
@@ -13,6 +14,14 @@ def init(c: sqlite3.Cursor) -> None:
     device TEXT NOT NULL,
     state TEXT NOT NULL,
     PRIMARY KEY (time)
+);''')
+
+    c.execute('''CREATE TABLE IF NOT EXISTS schedule (
+    start REAL NOT NULL,
+    end REAL NOT NULL,
+    temp REAL NOT NULL,
+    days REAL NOT NULL,
+    PRIMARY KEY (start, end)
 );''')
 
 
@@ -32,7 +41,13 @@ def saveState(c: sqlite3.Cursor, device: str, state: str) -> None:
 ''')
 
 
-def getLatestTemp(c: sqlite3.Cursor) -> float:
+def newSchedule(c: sqlite3.Cursor, start: int, end: int, temp: float, days: int) -> None:
+    c.execute(f'''INSERT INTO schedule
+    values("{start}", "{end}", "{temp}", "{days}");
+''')
+
+
+def getLatestTemp(c: sqlite3.Cursor) -> Optional[float]:
     c.execute('''SELECT *
     FROM temperature
     ORDER BY time DESC
@@ -44,3 +59,17 @@ def getLatestTemp(c: sqlite3.Cursor) -> float:
         return None
     else:
         return res[1]
+
+
+def getSchedules(c: sqlite3.Cursor) -> Optional[List[Tuple[float, float, float, int]]]:
+    c.execute('''SELECT *
+    FROM schedule
+''')
+    res = c.fetchall()
+    if res == []:
+        return None
+    else:
+        return list(map(lambda args:
+            (float(args[0]), float(args[1]), float(args[2]), int(args[3])), res))
+
+
