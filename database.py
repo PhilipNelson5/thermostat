@@ -48,7 +48,7 @@ def newSchedule(c: sqlite3.Cursor, start: int, end: int, temp: float, days: int)
 
 
 def getLatestTemp(c: sqlite3.Cursor) -> Optional[float]:
-    c.execute('''SELECT *
+    c.execute(f'''SELECT *
     FROM temperature
     ORDER BY time DESC
     LIMIT 1;
@@ -58,13 +58,28 @@ def getLatestTemp(c: sqlite3.Cursor) -> Optional[float]:
     if res == []:
         return None
     else:
-        return res[1]
+        return float(res[1])
+
+
+def getHistory(c: sqlite3.Cursor, days) -> Optional[List[any]]:
+    c.execute(f'''SELECT time, temp
+    FROM temperature
+    WHERE datetime(time) > date('now','-{days} day')
+    ORDER BY datetime(time) asc
+''')
+
+    res = c.fetchall()
+    if res == []:
+        return None
+    else:
+        return res
 
 
 def getSchedules(c: sqlite3.Cursor) -> Optional[List[Tuple[float, float, float, int]]]:
     c.execute('''SELECT *
     FROM schedule
 ''')
+
     res = c.fetchall()
     if res == []:
         return None

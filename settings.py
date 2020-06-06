@@ -6,7 +6,7 @@ minimumSafeTemperature = 50
 
 ''' Thermostat '''
 buff = 3
-sleepIntervalSec = 60
+sleepIntervalSec = 30
 webserver = 'localhost:4000'
 
 ''' Web Server '''

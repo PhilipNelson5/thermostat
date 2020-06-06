@@ -1,0 +1,145 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <title>Thermostat</title>
+    <meta name="description" content="Thermostat">
+    <meta name="Philip and Alex Nelson" content="Thermostat Interface">
+
+    <script src='js/vue.js'></script>
+    <script src='js/canvasjs.js'></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="container bg-gray">
+        <div class="hbox">
+          <div class="vbox">
+            <button class="up round-icon" type="button" onClick="turnUp()" ></button>
+            <button class="down round-icon" type="button" onClick="turnDown()" ></button>
+          </div>
+          <div class="vbox">
+            <p id="current">Current:</p>
+            <p id="desired">Desired:</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="graph" style="height: 400px; width: 100%;">
+      </div>
+    </div>
+
+    <script>
+      const app = new Vue({
+        el: '#app',
+        data: {
+          message: 'hell vue',
+          web_server: 'http://192.168.8.148:4000'
+        },
+        computed: {
+        },
+        methods: {
+          getTemperatureHistory(days) {
+            const url=`${this.web_server}/temperature/history/${days}`;
+            const request = new Request(url, {method: 'GET'});
+            fetch(request)
+              .then(response => {
+                if (response.status === 200) {
+                  return response.json();
+                } else {
+                  throw new Error('Something went wrong on api server! ' + response.status);
+                }
+              }).then(data => {
+                for (let mes of data.history) {
+                  mes.x = new Date(mes.x)
+                }
+                console.log('data fetched', data.history)
+                var chart = new CanvasJS.Chart("graph", {
+                  animationEnabled: true,
+                  title: {
+                    text: "Temperature History"
+                  },
+                  axisX: {
+                    title: "Time"
+                  },
+                  axisY: {
+                    title: "Temperature",
+                    suffix: "°F",
+                    includeZero: false,
+                  },
+                  data: [{
+                    type: "spline",
+                    name: "Temperature",
+                    xValueType: "dateTime",
+                    xValueFormatString: "DD MMM hh:mm TT",
+                    dataPoints: data.history
+                  }]
+                });
+                chart.render();
+              })
+          }
+
+        },
+        mounted(){
+          this.getTemperatureHistory(10)
+        }
+        // life cycle methods
+      })
+    </script>
+
+    <style>
+      .container {
+        border-radius: 7px;
+        padding: 1em;
+      }
+      .bg-gray {
+        background: lightgray;
+      }
+      .up {
+        background: url(static/img/arrow-circle-up-solid.svg) no-repeat top left;
+      }
+      .down {
+        background: url(static/img/arrow-circle-down-solid.svg) no-repeat top left;
+      }
+      .round-icon {
+        background-size: contain;
+        cursor: pointer;
+        display: inline-block;
+        height: 75px;
+        width: 75px;
+        border-radius: 50%;
+        background-color: Transparent;
+        border: none;
+        color: Transparent;
+      }
+      .vbox {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap
+      }
+      .hbox {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap
+      }
+      p {
+        width: 100%;
+      }
+      #current {
+        justify-content: center;
+        margin-left: 5%;
+        margin-top: 0;
+        font-size: 2.5em;
+      }
+      #desired {
+        justify-content: center;
+        margin-left: 5%;
+        margin-top: 0;
+        font-size: 2.5em;
+      }
+    </style>
+    <script src='js/scripts.js'></script>
+  </body>
+</html>

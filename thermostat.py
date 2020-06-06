@@ -30,7 +30,7 @@ def turnFurnaceOff() -> None:
         pass
 
 
-def getDesiredTemp() -> Optional[str]:
+def getDesiredTemp() -> Optional[float]:
     try:
         r = requests.get(f'http://{settings.webserver}/temperature/desired')
         try:
@@ -55,19 +55,25 @@ def checkSchedules(c: sqlite3.Cursor) -> None:
 
     now = datetime.now()
     nows = now.hour*3600 + now.minute*60 + now.second
-    print("now ",nows)
+
     # weekday(): monday = 0, sunday = 6
-    dow = now.today().weekday()
-    # TODO this and how days is stored are backwards...
+    # dow:       monday = 6, sunday = 0
+    dow = 6 - now.today().weekday()
+
+    # mask:      monday = 0b1000000
+    #            sunday = 0b0000001
     mask = 1 << dow
+
     for start, end, temp, days in schedules:
     #{
-        print("checking: ", start, end, temp, bin(days), bin(mask))
-        if mask & days != 0 and nows > start and nows < end:
+        print("checking schedule: ", start, end, temp, bin(days), bin(mask))
+        if mask & days == mask and nows > start and nows < end:
             print("settings temp: ", temp)
             setDesiredTemp(temp)
             return
     #}
+
+    print("no active schedules")
     setDesiredTemp(settings.minimumSafeTemperature)
 
 
@@ -93,7 +99,7 @@ def main():
             if currTemp < desiredTemp:
                 turnFurnaceOn()
 
-            if currTemp + settings.buff > desiredTemp:
+            elif currTemp + settings.buff > desiredTemp:
                 turnFurnaceOff()
 
         #}

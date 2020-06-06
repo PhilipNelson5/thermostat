@@ -4,11 +4,13 @@ import os
 import time
 
 from gpiozero import LED
+from datetime import datetime
 import sqlite3
 
-from flask import render_template
 from flask import Flask
+from flask import render_template
 from flask import request
+from flask import send_from_directory
 from flask_cors import CORS
 
 import settings
@@ -25,12 +27,21 @@ Modes
     * activate/<mode name>
 '''
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 
 @app.route('/', methods=['GET'])
 def index():
     print("Request for index")
-    return render_template('index.html', title='Thermostat')
+    return send_from_directory('static/html/', 'index.html')
+    # return render_template('index.html', title='Thermostat')
 
+@app.route('/js/<path:path>')
+def send_js(path):
+    return send_from_directory('static/js', path)
 
 @app.route('/furnace/on', methods=['POST'])
 def furnace_on():
@@ -54,14 +65,14 @@ def furnace_off():
 def temp_up():
     print(f"Turning temperature up: {settings.desiredTemp}")
     settings.desiredTemp += 1
-    return f"{{\"temperature\": {settings.desiredTemp}}}"
+    return f"{{\"desired\": {settings.desiredTemp}}}"
 
 
 @app.route('/temperature/down', methods=['POST'])
 def temp_down():
     print(f"Turning the temperature down: {settings.desiredTemp}")
     settings.desiredTemp -= 1
-    return f"{{\"temperature\": {settings.desiredTemp}}}"
+    return f"{{\"desired\": {settings.desiredTemp}}}"
 
 
 @app.route('/temperature/desired', methods=['GET'])
@@ -85,10 +96,30 @@ def temp_get():
     c = conn.cursor()
     t = database.getLatestTemp(c)
     if t == None:
-        return "{error: \"No temperatures recorded\""
+        return "{\"error\": \"No temperatures recorded\"}"
 
     print(f"Temperature: {t}")
     return f"{{\"temperature\": {t}}}"
+
+
+@app.route('/temperature/history/<days>', methods=['GET'])
+def history_get(days):
+    days = int(days)
+    conn = sqlite3.connect(settings.database)
+    c = conn.cursor()
+    h = database.getHistory(c, days)
+    if h == None:
+        return "{\"error\": \"No temperatures recorded\"}"
+
+    hist = ""
+    # b = datetime(1970, 1, 1)
+    for date, temp in h:
+        # a = datetime.strptime(date, '%Y-%m-%d %H:%M:%S.%f')
+        # hist = hist + f"{{\"x\":{(a-b).total_seconds()}, \"y\":{temp}}},"
+        hist = hist + f"{{\"x\":\"{date}\", \"y\":{temp}}},"
+    hist = hist[:-1]
+
+    return f"{{\"history\": [{hist}]}}"
 
 
 @app.route('/schedule/new', methods=['POST'])
@@ -121,7 +152,6 @@ def schedule_new():
     conn.commit()
     
     return "added new schedule"
-
 
 
 if __name__ == '__main__':

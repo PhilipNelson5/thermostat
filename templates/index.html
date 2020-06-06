@@ -11,19 +11,20 @@
     <style>
       .up {
         background: url(static/img/arrow-circle-up-solid.svg) no-repeat top left;
-        background-size: contain;
-        cursor: pointer;
-        display: inline-block;
-        height: 75px;
-        width: 75px;
       }
       .down {
         background: url(static/img/arrow-circle-down-solid.svg) no-repeat top left;
+      }
+      .round-icon {
         background-size: contain;
         cursor: pointer;
         display: inline-block;
         height: 75px;
         width: 75px;
+        border-radius: 50%;
+        background-color: Transparent;
+        border: none;
+        color: Transparent;
       }
       .vbox {
         display: flex;
@@ -38,7 +39,7 @@
       p {
         width: 100%;
       }
-      #temperature {
+      #current {
         justify-content: center;
         margin-left: 5%;
         margin-top: 0;
@@ -51,20 +52,33 @@
         font-size: 2.5em;
       }
     </style>
+    <!--<script src="{{ url_for('static', filename='js/vue.js') }}"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   </head>
 
   <body>
-    <h1> {{ title }} </h1>
-    <div class="hbox">
-      <div class="vbox">
-        <button class="up" type="button" onClick="turnUp()" ><img src = "" /></button>
-        <button class="down" type="button" onClick="turnDown()" ><img src = "static/img/arrow-circle-down-solid.svg" /></button>
-      </div>
-      <div class="vbox">
-        <p id="temperature">Current:</p>
-        <p id="desired">Current:</p>
-      <div>
+    <div id="app">
+      <p> {{ message }} </p>
     </div>
-    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    <script>
+      const app = new Vue({
+        el: '#app',
+        data: {
+          message: 'hello vue'
+        }
+      })
+    </script>
+    <!--<h1> {{ title }} </h1>-->
+    <!--<div class="hbox">-->
+      <!--<div class="vbox">-->
+        <!--<button class="up round-icon" type="button" onClick="turnUp()" ></button>-->
+        <!--<button class="down round-icon" type="button" onClick="turnDown()" ></button>-->
+      <!--</div>-->
+      <!--<div class="vbox">-->
+        <!--<p id="current">Current:</p>-->
+        <!--<p id="desired">Desired:</p>-->
+      <!--<div>-->
+    <!--</div>-->
+    <!--<script src="{{ url_for('static', filename='js/scripts.js') }}"></script>-->
   </body>
 </html>
