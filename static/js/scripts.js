@@ -1,4 +1,4 @@
-const web_server = 'http://192.168.8.148:4000'
+const web_server = window.location.origin
 
 function turnUp() {
   const url=`${web_server}/temperature/up`;
